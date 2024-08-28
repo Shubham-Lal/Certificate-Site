@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 
 export default function Signup() {
@@ -9,6 +9,9 @@ export default function Signup() {
 
     const handleSignupForm = async (e) => {
         e.preventDefault()
+
+        if (!credentials.email.trim()) return toast.error('Enter email')
+        else if (!credentials.password.trim()) return toast.error('Enter password')
 
         await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/signup`, {
             method: 'POST',
@@ -65,6 +68,12 @@ export default function Signup() {
             >
                 Signup
             </button>
+            <Link
+                to='/'
+                className='flex items-center justify-center h-[50px] border border-[#ff7703] text-[#ff7703]'
+            >
+                Go back to home
+            </Link>
         </form>
     )
 }

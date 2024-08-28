@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 export default function Certificate() {
@@ -18,6 +18,7 @@ export default function Certificate() {
             onSubmit={handleCertificateForm}
             className='mx-auto max-w-[500px] flex flex-col gap-3'
         >
+            <h1 className='text-xl font-semibold'>Verify your certificate</h1>
             <input
                 type='text'
                 placeholder='Enter Certificate ID'
@@ -31,6 +32,12 @@ export default function Certificate() {
             >
                 Verify
             </button>
+            <Link
+                to='/'
+                className='flex items-center justify-center h-[50px] border border-[#ff7703] text-[#ff7703]'
+            >
+                Go back to home
+            </Link>
         </form>
     )
 }

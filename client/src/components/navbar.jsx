@@ -1,8 +1,10 @@
-import { Link } from 'react-router-dom'
+import { useLocation, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuthStore } from '../store/useAuthStore'
 
 const Navbar = () => {
+    const location = useLocation()
+
     const { isAuthenticated, setIsAuthenticated, setUser } = useAuthStore()
 
     const handleLogout = async (e) => {
@@ -31,7 +33,7 @@ const Navbar = () => {
                 <img src='/logo.ico' alt='logo' />
             </Link>
             <nav className='flex gap-3 text-lg'>
-                <Link to='/' className='hover:underline'>Home</Link>
+                <Link to='/certificate' className={`hover:text-[#ff7703] ${location.pathname === '/certificate' ? 'text-[#ff7703]' : ''}`}>Certificate</Link>
                 {isAuthenticated ? (
                     <button
                         className='hover:underline'
@@ -41,8 +43,8 @@ const Navbar = () => {
                     </button>
                 ) : (
                     <>
-                        <Link to='/login' className='hover:underline'>Login</Link>
-                        <Link to='/signup' className='hover:underline'>Signup</Link>
+                        <Link to='/login' className={`hover:text-[#ff7703] ${location.pathname === '/login' ? 'text-[#ff7703]' : ''}`}>Login</Link>
+                        <Link to='/signup' className={`hover:text-[#ff7703] ${location.pathname === '/signup' ? 'text-[#ff7703]' : ''}`}>Signup</Link>
                     </>
                 )}
             </nav>
