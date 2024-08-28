@@ -4,6 +4,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { Toaster } from 'sonner'
 import Home from './pages/home'
 import Admin from './pages/admin'
+import Upload from './pages/admin/upload'
 import Login from './pages/login'
 import Signup from './pages/signup'
 import Certificate from './pages/certificate'
@@ -36,10 +37,13 @@ export default function App() {
     <BrowserRouter>
       <Navbar />
 
-      <main className='pt-[70px] px-3'>
+      <main className='pt-[70px] pb-3 px-3'>
         <Routes>
           <Route path='/' element={<Home />} />
-          <Route path='/admin' element={isAuthenticated ? <Admin /> : <Navigate to='/login' />} />
+          <Route path='/admin'>
+            <Route index element={isAuthenticated ? <Admin /> : <Navigate to='/login' />} />
+            <Route path='upload' element={isAuthenticated ? <Upload /> : <Navigate to='/login' />} />
+          </Route>
           <Route path='/login' element={isAuthenticated ? <Navigate to='/admin' /> : <Login />} />
           <Route path='/signup' element={isAuthenticated ? <Navigate to='/admin' /> : <Signup />} />
           <Route path='/certificate'>

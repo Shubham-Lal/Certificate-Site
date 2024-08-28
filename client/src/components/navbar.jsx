@@ -35,12 +35,15 @@ const Navbar = () => {
             <nav className='flex gap-3 text-lg'>
                 <Link to='/certificate' className={`hover:text-[#ff7703] ${location.pathname === '/certificate' ? 'text-[#ff7703]' : ''}`}>Certificate</Link>
                 {isAuthenticated ? (
-                    <button
-                        className='hover:underline'
-                        onClick={handleLogout}
-                    >
-                        Logout
-                    </button>
+                    <>
+                        <Link to='/admin' className={`hover:text-[#ff7703] ${location.pathname === '/admin' ? 'text-[#ff7703]' : ''}`}>Admin</Link>
+                        <button
+                            className='hover:underline'
+                            onClick={handleLogout}
+                        >
+                            Logout
+                        </button>
+                    </>
                 ) : (
                     <>
                         <Link to='/login' className={`hover:text-[#ff7703] ${location.pathname === '/login' ? 'text-[#ff7703]' : ''}`}>Login</Link>
