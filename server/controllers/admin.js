@@ -56,7 +56,11 @@ module.exports.loginUser = async (req, res) => {
             maxAge: 3600000
         })
 
-        res.status(200).json({ success: true, message: 'Login successful', data: { email: admin.email } })
+        res.status(200).json({
+            success: true,
+            message: 'Login successful',
+            data: { id: admin._id, email: admin.email }
+        })
     } catch (err) {
         res.status(500).json({ success: false, message: 'Internal server error' })
     }
@@ -80,5 +84,9 @@ module.exports.logoutUser = async (req, res) => {
 }
 
 module.exports.autoLogin = (req, res) => {
-    res.status(200).json({ success: true, message: 'User is logged in', data: { email: req.admin.email } });
+    res.status(200).json({
+        success: true,
+        message: 'Login successful',
+        data: { id: req.admin._id, email: req.admin.email }
+    })
 }

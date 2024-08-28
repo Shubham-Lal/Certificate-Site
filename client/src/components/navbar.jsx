@@ -17,7 +17,7 @@ const Navbar = () => {
             .then(response => {
                 if (response.success) {
                     setIsAuthenticated(false)
-                    setUser({ email: '' })
+                    setUser({ id: '', email: '' })
                     toast.success(response.message)
                 }
                 else toast.error(response.message)

@@ -6,6 +6,9 @@ import Home from './pages/home'
 import Admin from './pages/admin'
 import Login from './pages/login'
 import Signup from './pages/signup'
+import Certificate from './pages/certificate'
+import CertificateQR from './pages/certificate/qr'
+import CertificateVerify from './pages/certificate/verify'
 import Navbar from './components/navbar'
 import { useAuthStore } from './store/useAuthStore'
 
@@ -39,6 +42,13 @@ export default function App() {
           <Route path='/admin' element={isAuthenticated ? <Admin /> : <Navigate to='/login' />} />
           <Route path='/login' element={isAuthenticated ? <Navigate to='/admin' /> : <Login />} />
           <Route path='/signup' element={isAuthenticated ? <Navigate to='/admin' /> : <Signup />} />
+          <Route path='/certificate'>
+            <Route index element={<Certificate />} />
+            <Route path=':certificateID'>
+              <Route index element={<CertificateQR />} />
+              <Route path='verify' element={<CertificateVerify />} />
+            </Route>
+          </Route>
         </Routes>
       </main>
 
