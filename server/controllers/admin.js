@@ -1,7 +1,9 @@
 const Email = require('../models/Email')
 const Admin = require('../models/Admin')
+const Certificate = require('../models/Certificate')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const cloudinary = require('../config/cloudinary.config.js')
 
 module.exports.signupUser = async (req, res) => {
     const { email, password } = req.body
@@ -78,7 +80,6 @@ module.exports.logoutUser = async (req, res) => {
 
         res.status(200).json({ success: true, message: 'Logout successful' })
     } catch (error) {
-        console.error('Logout error:', error.message)
         res.status(500).json({ success: false, message: 'Internal server error' })
     }
 }
@@ -89,4 +90,32 @@ module.exports.autoLogin = (req, res) => {
         message: 'Login successful',
         data: { id: req.admin._id, email: req.admin.email }
     })
+}
+
+module.exports.uploadCertificate = async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, message: 'No file uploaded' })
+        }
+
+        cloudinary.uploader.upload_stream({
+            folder: 'certificates',
+            resource_type: 'auto'
+        }, async (error, result) => {
+            if (error) {
+                return res.status(500).json({ success: false, message: error.message })
+            }
+
+            const newCertificate = new Certificate({
+                cert_url: result.secure_url,
+                history: [{ adminId: req.admin._id }]
+            })
+
+            await newCertificate.save()
+
+            res.status(201).json({ success: true, message: 'Certificate uploaded', data: newCertificate })
+        }).end(req.file.buffer)
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message })
+    }
 }
