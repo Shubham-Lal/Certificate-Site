@@ -5,10 +5,9 @@ const CertificateSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    status: {
-        type: String,
-        enum: ['valid', 'invalid'],
-        default: 'valid'
+    valid: {
+        type: Boolean,
+        default: true
     },
     history: [
         {

@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser')
 const cors = require('cors');
 const mongoose = require('mongoose')
 const adminRoutes = require('./routes/admin.js')
+const publicRoutes = require('./routes/public.js')
 
 const app = express()
 const PORT = process.env.PORT || 5000
@@ -17,6 +18,7 @@ app.use(cors({
 }))
 
 app.use('/api/admin/', adminRoutes)
+app.use('/api/public/', publicRoutes)
 
 mongoose.connect(process.env.MONGODB_URI)
     .then(() => app.listen(PORT, () => console.log(`Listening for requests on port: ${PORT}`)))
