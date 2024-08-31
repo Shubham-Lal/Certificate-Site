@@ -1,6 +1,7 @@
 import { useState } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import { CiSearch } from 'react-icons/ci'
 
 export default function Certificate() {
     const navigate = useNavigate()
@@ -18,26 +19,21 @@ export default function Certificate() {
             onSubmit={handleCertificateForm}
             className='mx-auto max-w-[500px] flex flex-col gap-3'
         >
-            <h1 className='text-xl font-semibold'>Verify your certificate</h1>
+            <h1 className='text-xl font-semibold'>View your certificate</h1>
             <input
                 type='text'
                 placeholder='Enter Certificate ID'
-                className='p-3 border'
+                className='p-3 border rounded'
                 value={id}
                 onChange={e => setID(e.target.value)}
             />
             <button
                 type='submit'
-                className='h-[50px] bg-[#ff7703] text-white'
+                className='h-[50px] flex items-center justify-center gap-1 bg-orange-100 border border-[#ff7703] text-[#ff7703] rounded'
             >
-                Verify
+                <p>Search</p>
+                <CiSearch size={25} />
             </button>
-            <Link
-                to='/'
-                className='flex items-center justify-center h-[50px] border border-[#ff7703] text-[#ff7703]'
-            >
-                Go back to home
-            </Link>
         </form>
     )
 }

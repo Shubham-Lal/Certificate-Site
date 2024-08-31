@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
+import { MdOpenInNew, MdDelete, MdEdit } from 'react-icons/md'
 
 export default function Admin() {
     const [data, setData] = useState([])
@@ -20,14 +21,54 @@ export default function Admin() {
     }, [])
 
     return (
-        <div className='flex flex-col gap-5'>
-            <Link
-                to='upload'
-                className='px-2 w-fit h-[40px] flex items-center justify-center bg-[#ff7703] text-white'
-            >
-                Upload Certificate
-            </Link>
-            <h1 className='text-xl font-semibold'>Certificates</h1>
+        <div className='relative overflow-x-hidden'>
+            <div className='mx-auto xl:w-[calc(1280px-0.75rem-0.75rem)] flex items-center justify-between'>
+                <h1 className='text-2xl sm:text-3xl'>Certificates</h1>
+                <Link to='upload' className='px-4 w-fit h-[40px] flex items-center justify-center bg-orange-100 border border-[#ff7703] text-[#ff7703] rounded'>
+                    Create Certificate
+                </Link>
+            </div>
+
+            <div className='mx-auto xl:w-fit overflow-x-auto'>
+                <table className='w-[calc(1280px-0.75rem-0.75rem)] mt-3 border-collapse border border-gray-300'>
+                    <thead className='bg-gray-100'>
+                        <tr>
+                            <th className='w-[20%] border border-gray-300'>ID</th>
+                            <th className='border border-gray-300'>Subject</th>
+                            <th className='w-[20%] border border-gray-300'>Name</th>
+                            <th className='w-[50px] border border-gray-300'></th>
+                            <th className='w-[50px] border border-gray-300'></th>
+                            <th className='w-[50px] border border-gray-300'></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {data.length ? (
+                            data.map(item => (
+                                <tr key={item._id}>
+                                    <td className='py-2 px-3 border border-gray-300 text-center'>{item._id}</td>
+                                    <td className='py-2 px-3 border border-gray-300'>{item.issued.for}</td>
+                                    <td className='py-2 px-3 border border-gray-300 text-center'>{item.issued.to}</td>
+                                    <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
+                                        <a href={`${import.meta.env.VITE_CLIENT_URL}/certificate/${item._id}`} target='_blank' rel='noopener noreferrer'>
+                                            <MdOpenInNew size={24} className='text-gray-600 group-hover:text-black' />
+                                        </a>
+                                    </td>
+                                    <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
+                                        <MdEdit size={24} className='text-gray-600 group-hover:text-black' />
+                                    </td>
+                                    <td className={`py-2 px-3 border border-gray-300 cursor-pointer group`}>
+                                        <MdDelete size={24} className='text-gray-600 group-hover:text-red-500' />
+                                    </td>
+                                </tr>
+                            ))
+                        ) : (
+                            <tr><td className='py-2 px-3'><p>No certificate yet</p></td></tr>
+                        )}
+                    </tbody>
+                </table>
+            </div>
+
+
         </div>
     )
 }

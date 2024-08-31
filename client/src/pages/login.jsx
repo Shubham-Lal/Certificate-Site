@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuthStore } from '../store/useAuthStore'
 
@@ -44,7 +44,7 @@ export default function Login() {
                 type='email'
                 name='email'
                 placeholder='Enter email'
-                className='p-3 border'
+                className='p-3 border rounded'
                 value={credentials.email}
                 onChange={(e) =>
                     setCredentials(prevCredentials => ({
@@ -57,7 +57,7 @@ export default function Login() {
                 type='password'
                 name='password'
                 placeholder='Enter password'
-                className='p-3 border'
+                className='p-3 border rounded'
                 value={credentials.password}
                 onChange={(e) =>
                     setCredentials(prevCredentials => ({
@@ -68,16 +68,10 @@ export default function Login() {
             />
             <button
                 type='submit'
-                className='h-[50px] bg-[#ff7703] text-white'
+                className='h-[50px] bg-[#ff7703] text-white rounded'
             >
                 Login
             </button>
-            <Link
-                to='/'
-                className='flex items-center justify-center h-[50px] border border-[#ff7703] text-[#ff7703]'
-            >
-                Go back to home
-            </Link>
         </form>
     )
 }

@@ -3,11 +3,10 @@ const multer = require('multer')
 const storage = multer.memoryStorage()
 
 const fileFilter = (req, file, cb) => {
-    if (file.mimetype === 'image/jpg' || file.mimetype === 'image/jpeg' || file.mimetype === 'image/png' || file.mimetype === 'application/pdf') {
-        cb(null, true);
-    } else {
-        cb(new Error('Invalid file type. Only JPG, JPEG, PNG, and PDF are allowed'), false)
+    if (file.mimetype !== 'application/pdf') {
+        cb(new Error('Invalid file type. Only PDF file is allowed'), false)
     }
+    cb(null, true)
 }
 
 const upload = multer({

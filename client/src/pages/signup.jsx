@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { useNavigate, Link } from 'react-router-dom'
+import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 
 export default function Signup() {
@@ -38,7 +38,7 @@ export default function Signup() {
             <h1 className='text-xl font-semibold'>Create your account</h1>
             <input
                 placeholder='Enter your name'
-                className='p-3 border'
+                className='p-3 border rounded'
                 value={credentials.name}
                 onChange={(e) =>
                     setCredentials(prev => ({
@@ -50,7 +50,7 @@ export default function Signup() {
             <input
                 type='email'
                 placeholder='Enter email'
-                className='p-3 border'
+                className='p-3 border rounded'
                 value={credentials.email}
                 onChange={(e) =>
                     setCredentials(prev => ({
@@ -62,7 +62,7 @@ export default function Signup() {
             <input
                 type='password'
                 placeholder='Enter password'
-                className='p-3 border'
+                className='p-3 border rounded'
                 value={credentials.password}
                 onChange={(e) =>
                     setCredentials(prev => ({
@@ -73,16 +73,10 @@ export default function Signup() {
             />
             <button
                 type='submit'
-                className='h-[50px] bg-[#ff7703] text-white'
+                className='h-[50px] bg-[#ff7703] text-white rounded'
             >
                 Signup
             </button>
-            <Link
-                to='/'
-                className='flex items-center justify-center h-[50px] border border-[#ff7703] text-[#ff7703]'
-            >
-                Go back to home
-            </Link>
         </form>
     )
 }

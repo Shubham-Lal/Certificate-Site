@@ -93,35 +93,31 @@ module.exports.autoLogin = (req, res) => {
 module.exports.uploadCertificate = async (req, res) => {
     const { issued_for, issued_to } = req.body
 
-    if (!issued_for || !issued_for.trim()) return res.status(400).json({ success: false, message: 'Certificate subject is required' })
+    if (!req.file) return res.status(400).json({ success: false, message: 'Choose a file to upload' })
+    else if (!issued_for || !issued_for.trim()) return res.status(400).json({ success: false, message: 'Certificate subject is required' })
     else if (!issued_to || !issued_to.trim()) return res.status(400).json({ success: false, message: 'Certificate recipient is required' })
 
     try {
-        if (!req.file) {
-            return res.status(400).json({ success: false, message: 'No file uploaded' })
-        }
+        cloudinary.uploader.upload_stream({ folder: 'certificates' },
+            async (error, result) => {
+                if (error) {
+                    return res.status(500).json({ success: false, message: error.message })
+                }
 
-        cloudinary.uploader.upload_stream({
-            folder: 'certificates',
-            resource_type: 'auto'
-        }, async (error, result) => {
-            if (error) {
-                return res.status(500).json({ success: false, message: error.message })
+                const newCertificate = new Certificate({
+                    file: {
+                        _id: result.public_id,
+                        url: result.secure_url
+                    },
+                    issued: { for: issued_for, to: issued_to },
+                    history: [{ adminId: req.admin._id }]
+                })
+
+                await newCertificate.save()
+
+                res.status(201).json({ success: true, message: 'Certificate uploaded' })
             }
-
-            const newCertificate = new Certificate({
-                file: {
-                    _id: result.public_id,
-                    url: result.secure_url
-                },
-                issued: { for: issued_for, to: issued_to },
-                history: [{ adminId: req.admin._id }]
-            })
-
-            await newCertificate.save()
-
-            res.status(201).json({ success: true, message: 'Certificate uploaded' })
-        }).end(req.file.buffer)
+        ).end(req.file.buffer)
     } catch (error) {
         res.status(500).json({ success: false, message: error.message })
     }
