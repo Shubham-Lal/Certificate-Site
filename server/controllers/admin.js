@@ -6,7 +6,7 @@ const jwt = require('jsonwebtoken')
 const cloudinary = require('../config/cloudinary.config.js')
 
 module.exports.signupUser = async (req, res) => {
-    const { email, password } = req.body
+    const { name, email, password } = req.body
 
     if (!email || !email.trim()) return res.status(400).json({ success: false, message: 'Email is required' })
     else if (!password || !password.trim()) return res.status(400).json({ success: false, message: 'Password is required' })
@@ -22,7 +22,7 @@ module.exports.signupUser = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Email already exists' })
         }
 
-        const admin = new Admin({ email, password })
+        const admin = new Admin({ name, email, password })
         await admin.save()
 
         res.status(201).json({ success: true, message: 'Signup successfull' })
@@ -60,8 +60,7 @@ module.exports.loginUser = async (req, res) => {
 
         res.status(200).json({
             success: true,
-            message: 'Login successful',
-            data: { id: admin._id, email: admin.email }
+            message: 'Login successful'
         })
     } catch (err) {
         res.status(500).json({ success: false, message: 'Internal server error' })
@@ -87,12 +86,16 @@ module.exports.logoutUser = async (req, res) => {
 module.exports.autoLogin = (req, res) => {
     res.status(200).json({
         success: true,
-        message: 'Login successful',
-        data: { id: req.admin._id, email: req.admin.email }
+        message: 'Login successful'
     })
 }
 
 module.exports.uploadCertificate = async (req, res) => {
+    const { issued_for, issued_to } = req.body
+
+    if (!issued_for || !issued_for.trim()) return res.status(400).json({ success: false, message: 'Certificate subject is required' })
+    else if (!issued_to || !issued_to.trim()) return res.status(400).json({ success: false, message: 'Certificate recipient is required' })
+
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, message: 'No file uploaded' })
@@ -107,14 +110,27 @@ module.exports.uploadCertificate = async (req, res) => {
             }
 
             const newCertificate = new Certificate({
-                cert_url: result.secure_url,
+                file: {
+                    _id: result.public_id,
+                    url: result.secure_url
+                },
+                issued: { for: issued_for, to: issued_to },
                 history: [{ adminId: req.admin._id }]
             })
 
             await newCertificate.save()
 
-            res.status(201).json({ success: true, message: 'Certificate uploaded', data: newCertificate })
+            res.status(201).json({ success: true, message: 'Certificate uploaded' })
         }).end(req.file.buffer)
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+module.exports.fetchCertificates = async (req, res) => {
+    try {
+        const certificates = await Certificate.find().sort({ updatedAt: -1 }).exec()
+        res.status(200).json({ success: true, data: certificates })
     } catch (error) {
         res.status(500).json({ success: false, message: error.message })
     }

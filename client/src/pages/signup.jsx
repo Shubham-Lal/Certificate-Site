@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 export default function Signup() {
     const navigate = useNavigate()
 
-    const [credentials, setCredentials] = useState({ email: '', password: '' })
+    const [credentials, setCredentials] = useState({ name: '', email: '', password: '' })
 
     const handleSignupForm = async (e) => {
         e.preventDefault()
@@ -37,27 +37,36 @@ export default function Signup() {
         >
             <h1 className='text-xl font-semibold'>Create your account</h1>
             <input
+                placeholder='Enter your name'
+                className='p-3 border'
+                value={credentials.name}
+                onChange={(e) =>
+                    setCredentials(prev => ({
+                        ...prev,
+                        name: e.target.value
+                    }))
+                }
+            />
+            <input
                 type='email'
-                name='email'
                 placeholder='Enter email'
                 className='p-3 border'
                 value={credentials.email}
                 onChange={(e) =>
-                    setCredentials(prevCredentials => ({
-                        ...prevCredentials,
+                    setCredentials(prev => ({
+                        ...prev,
                         email: e.target.value
                     }))
                 }
             />
             <input
                 type='password'
-                name='password'
                 placeholder='Enter password'
                 className='p-3 border'
                 value={credentials.password}
                 onChange={(e) =>
-                    setCredentials(prevCredentials => ({
-                        ...prevCredentials,
+                    setCredentials(prev => ({
+                        ...prev,
                         password: e.target.value
                     }))
                 }

@@ -1,9 +1,25 @@
 const mongoose = require('mongoose')
 
 const CertificateSchema = new mongoose.Schema({
-    cert_url: {
-        type: String,
-        required: true
+    file: {
+        _id: {
+            type: String,
+            required: true
+        },
+        url: {
+            type: String,
+            required: true
+        }
+    },
+    issued: {
+        for: {
+            type: String,
+            required: true
+        },
+        to: {
+            type: String,
+            required: true
+        }
     },
     valid: {
         type: Boolean,
@@ -22,6 +38,6 @@ const CertificateSchema = new mongoose.Schema({
             }
         }
     ]
-})
+}, { timestamps: true })
 
 module.exports = mongoose.model('Certificate', CertificateSchema)

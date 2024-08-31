@@ -14,7 +14,7 @@ import Navbar from './components/navbar'
 import { useAuthStore } from './store/useAuthStore'
 
 export default function App() {
-  const { isAuthenticated, setIsAuthenticated, setUser } = useAuthStore()
+  const { isAuthenticated, setIsAuthenticated } = useAuthStore()
 
   useEffect(() => {
     const autoLogin = async () => {
@@ -24,10 +24,7 @@ export default function App() {
       })
         .then(res => res.json())
         .then(response => {
-          if (response.success) {
-            setIsAuthenticated(true)
-            setUser(response.data)
-          }
+          if (response.success) setIsAuthenticated(true)
         })
     }
     autoLogin()

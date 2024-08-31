@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/useAuthStore'
 const Navbar = () => {
     const location = useLocation()
 
-    const { isAuthenticated, setIsAuthenticated, setUser } = useAuthStore()
+    const { isAuthenticated, setIsAuthenticated } = useAuthStore()
 
     const handleLogout = async (e) => {
         await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/logout`, {
@@ -19,7 +19,6 @@ const Navbar = () => {
             .then(response => {
                 if (response.success) {
                     setIsAuthenticated(false)
-                    setUser({ id: '', email: '' })
                     toast.success(response.message)
                 }
                 else toast.error(response.message)

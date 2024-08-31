@@ -19,9 +19,10 @@ export default function CertificateQR() {
                     }
                 })
         }
+        
         if (!certificateID || !certificateID.trim()) navigate('/')
         fetchCertificate()
-    }, [certificateID])
+    }, [])
 
     return (
         <div className='flex flex-col items-center gap-2'>

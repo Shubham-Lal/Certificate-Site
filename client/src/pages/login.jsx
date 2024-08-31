@@ -6,7 +6,7 @@ import { useAuthStore } from '../store/useAuthStore'
 export default function Login() {
     const navigate = useNavigate()
 
-    const { setIsAuthenticated, setUser } = useAuthStore()
+    const { setIsAuthenticated } = useAuthStore()
 
     const [credentials, setCredentials] = useState({ email: '', password: '' })
 
@@ -26,7 +26,6 @@ export default function Login() {
             .then(response => {
                 if (response.success) {
                     setIsAuthenticated(true)
-                    setUser(response.data)
                     toast.success(response.message)
                     navigate('/admin')
                 }
