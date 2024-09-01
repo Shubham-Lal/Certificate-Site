@@ -2,8 +2,10 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { BsFiletypePdf } from 'react-icons/bs'
-import { MdDelete, MdFileUpload } from 'react-icons/md'
-import PdfViewer from '../certificate/pdf'
+import { MdDelete } from 'react-icons/md'
+import { FaSave } from 'react-icons/fa'
+import PDFViewer from '../certificate/pdf'
+import Loading from '../../components/loading'
 
 export default function Upload() {
     const navigate = useNavigate()
@@ -55,7 +57,7 @@ export default function Upload() {
 
     return (
         <div className='mx-auto w-full sm:w-fit'>
-            {file && <PdfViewer file={file} />}
+            {file && <PDFViewer file={file} />}
 
             <form
                 onSubmit={handleUploadForm}
@@ -108,7 +110,7 @@ export default function Upload() {
                 />
 
                 <div className='w-full flex gap-3 justify-center'>
-                    {file && (
+                    {file && !isUploading && (
                         <button
                             onClick={() => setFile(null)}
                             className='w-full md:w-fit h-[40px] px-4 flex items-center justify-center gap-3 border border-red-500 text-red-500 rounded'
@@ -119,11 +121,12 @@ export default function Upload() {
                     )}
                     <button
                         type='submit'
-                        className='w-full md:w-fit h-[40px] px-4 flex items-center justify-center gap-3 bg-[#ff7703] text-white rounded'
+                        className={`w-full md:w-fit h-[40px] px-4 flex items-center justify-center gap-3 ${isUploading ? 'bg-transparent text-[#ff7703] cursor-not-allowed' : 'bg-[#ff7703] text-white'} rounded`}
                         disabled={isUploading}
                     >
-                        <p>Save File</p>
-                        <MdFileUpload size={18} />
+                        {isUploading ? <Loading size={25} className='mx-auto' /> : (
+                            <><p>Save File</p><FaSave size={18} /></>
+                        )}
                     </button>
                 </div>
             </form>

@@ -18,7 +18,7 @@ const Navbar = () => {
             .then(res => res.json())
             .then(response => {
                 if (response.success) {
-                    setIsAuthenticated(false)
+                    setIsAuthenticated('failed')
                     toast.success(response.message)
                 }
                 else toast.error(response.message)
@@ -42,7 +42,7 @@ const Navbar = () => {
             </Link>
             <nav className='flex gap-3 text-lg'>
                 <Link to='/certificate' className={`hover:text-[#ff7703] ${location.pathname === '/certificate' ? 'text-[#ff7703]' : ''}`}>Certificate</Link>
-                {isAuthenticated ? (
+                {isAuthenticated === 'authenticated' ? (
                     <>
                         <Link to='/admin' className={`hover:text-[#ff7703] ${location.pathname === '/admin' ? 'text-[#ff7703]' : ''}`}>Admin</Link>
                         <button

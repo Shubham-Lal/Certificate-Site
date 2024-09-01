@@ -1,10 +1,14 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { CiSearch } from 'react-icons/ci'
+import { IoAdd } from 'react-icons/io5'
+import { useAuthStore } from '../../store/useAuthStore'
 
 export default function Certificate() {
     const navigate = useNavigate()
+
+    const { isAuthenticated } = useAuthStore()
 
     const [id, setID] = useState('')
 
@@ -31,9 +35,18 @@ export default function Certificate() {
                 type='submit'
                 className='h-[50px] flex items-center justify-center gap-1 bg-orange-100 border border-[#ff7703] text-[#ff7703] rounded'
             >
-                <p>Search</p>
+                <p>Search Certificate</p>
                 <CiSearch size={25} />
             </button>
+            {isAuthenticated === 'authenticated' && (
+                <Link
+                    to='/admin/upload'
+                    className='h-[50px] flex items-center justify-center gap-1 border rounded'
+                >
+                    <p>Create Certificate</p>
+                    <IoAdd size={25} />
+                </Link>
+            )}
         </form>
     )
 }

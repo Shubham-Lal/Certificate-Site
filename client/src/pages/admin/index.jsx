@@ -1,15 +1,21 @@
+import { useState } from 'react'
 import { Link } from 'react-router-dom'
 import { MdOpenInNew, MdDelete, MdEdit, MdDone } from 'react-icons/md'
 import { toast } from 'sonner'
 import { RxCross2 } from 'react-icons/rx'
 import { useFetchCertificates } from '../../hooks/fetch-certificate'
+import Loading from '../../components/loading'
 
 export default function Admin() {
     const { isLoading, data, setData } = useFetchCertificates()
 
+    const [deletingId, setDeletingId] = useState(null)
+
     const handleDeleteCertificate = async (certificateID) => {
         const confirmed = window.confirm('Are you sure you want to delete this certificate?')
         if (!confirmed) return
+
+        setDeletingId(certificateID)
 
         await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/certificate/${certificateID}`, {
             method: 'DELETE',
@@ -20,6 +26,10 @@ export default function Admin() {
                 if (response.success) setData(prev => prev.filter(item => item._id !== certificateID))
                 else toast.error(response.message || 'Error deleting certificate')
             })
+            .catch(() => {
+                toast.error('Error deleting certificate')
+            })
+            .finally(() => setDeletingId(null))
     }
 
     return (
@@ -45,38 +55,54 @@ export default function Admin() {
                         </tr>
                     </thead>
                     <tbody>
-                        {data.length ? (
-                            data.map(item => (
-                                <tr key={item._id}>
-                                    <td className='py-2 px-3 border border-gray-300 text-center'>{item._id}</td>
-                                    <td className='py-2 px-3 border border-gray-300'>{item.issued.for}</td>
-                                    <td className='py-2 px-3 border border-gray-300 text-center'>{item.issued.to}</td>
-                                    <td className={`py-2 px-3 border border-gray-300`}>
-                                        {item.valid ? (
-                                            <MdDone size={24} className='text-green-500' title='Certificate Valid' />
-                                        ) : (
-                                            <RxCross2 size={24} className='text-red-500' title='Certificate Invalid' />
-                                        )}
-                                    </td>
-                                    <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
-                                        <a href={`${import.meta.env.VITE_CLIENT_URL}/certificate/${item._id}`} target='_blank' rel='noopener noreferrer'>
-                                            <MdOpenInNew size={24} className='text-gray-600 group-hover:text-black' />
-                                        </a>
-                                    </td>
-                                    <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
-                                        <Link to={`/certificate/${item._id}/edit`}>
-                                            <MdEdit size={24} className='text-gray-600 group-hover:text-black' />
-                                        </Link>
-                                    </td>
-                                    <td className={`py-2 px-3 border border-gray-300 cursor-pointer group`}>
-                                        <button onClick={() => handleDeleteCertificate(item._id)}>
-                                            <MdDelete size={24} className='text-gray-600 group-hover:text-red-500' />
-                                        </button>
-                                    </td>
-                                </tr>
-                            ))
+                        {isLoading ? (
+                            <tr>
+                                <td className='py-2 px-3'>
+                                    <Loading size={30} color='#ff7703' />
+                                </td>
+                            </tr>
                         ) : (
-                            <tr><td className='py-2 px-3'><p>No certificate yet</p></td></tr>
+                            data.length ? (
+                                data.map(item => (
+                                    <tr key={item._id}>
+                                        <td className='py-2 px-3 border border-gray-300 text-center'>{item._id}</td>
+                                        <td className='py-2 px-3 border border-gray-300'>{item.issued.for}</td>
+                                        <td className='py-2 px-3 border border-gray-300 text-center'>{item.issued.to}</td>
+                                        <td className={`py-2 px-3 border border-gray-300`}>
+                                            {item.valid ? (
+                                                <MdDone size={24} className='text-green-500' title='Certificate Valid' />
+                                            ) : (
+                                                <RxCross2 size={24} className='text-red-500' title='Certificate Invalid' />
+                                            )}
+                                        </td>
+                                        <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
+                                            <a href={`${import.meta.env.VITE_CLIENT_URL}/certificate/${item._id}`} target='_blank' rel='noopener noreferrer'>
+                                                <MdOpenInNew size={24} className='text-gray-600 group-hover:text-black' />
+                                            </a>
+                                        </td>
+                                        <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
+                                            <Link to={`/certificate/${item._id}/edit`}>
+                                                <MdEdit size={24} className='text-gray-600 group-hover:text-black' />
+                                            </Link>
+                                        </td>
+                                        <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
+                                            <button
+                                                className={`flex items-center justify-center ${deletingId === item._id ? 'cursor-not-allowed' : ''}`}
+                                                onClick={() => handleDeleteCertificate(item._id)} 
+                                                disabled={deletingId === item._id}
+                                            >
+                                                {deletingId === item._id ? (
+                                                    <Loading size={24} className='text-red-500' />
+                                                ) : (
+                                                    <MdDelete size={24} className='text-gray-600 group-hover:text-red-500' />
+                                                )}
+                                            </button>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr><td className='py-2 px-3'><p>No certificate added yet</p></td></tr>
+                            )
                         )}
                     </tbody>
                 </table>

@@ -3,7 +3,7 @@ import { Document, Page, pdfjs } from 'react-pdf'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
 
-const PdfViewer = ({ file }) => {
+const PDFViewer = ({ file }) => {
     const [numPages, setNumPages] = useState()
 
     function onDocumentLoadSuccess({ numPages }) {
@@ -32,4 +32,4 @@ const PdfViewer = ({ file }) => {
     )
 }
 
-export default PdfViewer
+export default PDFViewer

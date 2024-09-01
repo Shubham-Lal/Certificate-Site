@@ -6,3 +6,18 @@
     max-width: 1056px !important;
     width: 100% !important;
 }
+
+.spinner {
+    vertical-align: middle;
+    animation: rotate-anim 1s linear infinite;
+}
+
+@keyframes rotate-anim {
+    0% {
+        rotate: 0deg;
+    }
+
+    100% {
+        rotate: 360deg;
+    }
+}

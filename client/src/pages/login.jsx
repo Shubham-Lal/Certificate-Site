@@ -2,11 +2,12 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuthStore } from '../store/useAuthStore'
+import Loading from '../components/loading'
 
 export default function Login() {
     const navigate = useNavigate()
 
-    const { setIsAuthenticated } = useAuthStore()
+    const { isAuthenticated, setIsAuthenticated } = useAuthStore()
 
     const [credentials, setCredentials] = useState({ email: '', password: '' })
 
@@ -15,6 +16,8 @@ export default function Login() {
 
         if (!credentials.email.trim()) return toast.error('Enter email')
         else if (!credentials.password.trim()) return toast.error('Enter password')
+
+        setIsAuthenticated('authenticating')
 
         await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/login`, {
             method: 'POST',
@@ -25,13 +28,19 @@ export default function Login() {
             .then(res => res.json())
             .then(response => {
                 if (response.success) {
-                    setIsAuthenticated(true)
+                    setIsAuthenticated('authenticated')
                     toast.success(response.message)
                     navigate('/admin')
                 }
-                else toast.error(response.message)
+                else {
+                    setIsAuthenticated('failed')
+                    toast.error(response.message)
+                }
             })
-            .catch(() => toast.error('Something went wrong'))
+            .catch(() => {
+                setIsAuthenticated('failed')
+                toast.error('Something went wrong')
+            })
     }
 
     return (
@@ -68,9 +77,10 @@ export default function Login() {
             />
             <button
                 type='submit'
-                className='h-[50px] bg-[#ff7703] text-white rounded'
+                className={`h-[50px] rounded ${isAuthenticated === 'authenticating' ? 'bg-transparent text-[#ff7703] cursor-not-allowed' : 'bg-[#ff7703] text-white'}`}
+                disabled={isAuthenticated === 'authenticating'}
             >
-                Login
+                {isAuthenticated === 'authenticating' ? <Loading size={25} className='mx-auto' /> : 'Login'}
             </button>
         </form>
     )
