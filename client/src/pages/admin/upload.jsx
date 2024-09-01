@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { BsFiletypePdf } from 'react-icons/bs'
 import { MdDelete, MdFileUpload } from 'react-icons/md'
+import PdfViewer from '../certificate/pdf'
 
 export default function Upload() {
     const navigate = useNavigate()
@@ -31,7 +32,7 @@ export default function Upload() {
         formData.append('certificate', file)
 
         try {
-            await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/upload`, {
+            await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/certificate`, {
                 method: 'POST',
                 credentials: 'include',
                 body: formData
@@ -53,75 +54,79 @@ export default function Upload() {
     }
 
     return (
-        <form
-            onSubmit={handleUploadForm}
-            className='mx-auto max-w-[500px] flex flex-col gap-3'
-        >
-            {file ? (
-                <div className='flex items-center gap-5'>
-                    <div className='w-[50px] h-[50px] grid place-content-center border rounded'>
-                        <BsFiletypePdf size={30} />
-                    </div>
-                    <div className='flex flex-col'>
-                        <p>{file.name}</p>
-                        <p>{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
-                    </div>
-                </div>
-            ) : (
-                <>
-                    <input ref={inputRef} type='file' accept='.pdf,.jpg,.jpeg,.png' onChange={handleChange} className='hidden' />
-                    <button
-                        type='button'
-                        onClick={() => inputRef.current.click()}
-                        className='px-4 h-[50px] bg-orange-100 border border-[#ff7703] text-[#ff7703] rounded'
-                    >
-                        Choose file (PDF only)
-                    </button>
-                </>
-            )}
+        <div className='mx-auto w-full sm:w-fit'>
+            {file && <PdfViewer file={file} />}
 
-            <input
-                placeholder='Enter Certificate Subject'
-                className='p-3 border rounded'
-                value={issued.for}
-                onChange={(e) =>
-                    setIssued(prev => ({
-                        ...prev,
-                        for: e.target.value
-                    }))
-                }
-            />
-            <input
-                placeholder='Enter Certificate Recipient Name'
-                className='p-3 border rounded'
-                value={issued.to}
-                onChange={(e) =>
-                    setIssued(prev => ({
-                        ...prev,
-                        to: e.target.value
-                    }))
-                }
-            />
-
-            <div className='w-full flex gap-3 justify-center'>
-                {file && (
-                    <button
-                        onClick={() => setFile(null)}
-                        className='w-full md:w-fit h-[40px] px-4 flex items-center justify-center gap-3 border border-red-500 text-red-500 rounded'
-                    >
-                        <p>Remove File</p>
-                        <MdDelete size={18} />
-                    </button>
+            <form
+                onSubmit={handleUploadForm}
+                className={`${file ? 'mt-5' : ''} mx-auto w-full sm:w-[500px] flex flex-col gap-3`}
+            >
+                {file ? (
+                    <div className='flex items-center gap-5'>
+                        <div className='w-[50px] h-[50px] grid place-content-center border rounded'>
+                            <BsFiletypePdf size={30} />
+                        </div>
+                        <div className='flex flex-col'>
+                            <p>{file.name}</p>
+                            <p>{(file.size / (1024 * 1024)).toFixed(2)} MB</p>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <input ref={inputRef} type='file' accept='.pdf,.jpg,.jpeg,.png' onChange={handleChange} className='hidden' />
+                        <button
+                            type='button'
+                            onClick={() => inputRef.current.click()}
+                            className='px-4 h-[50px] bg-orange-100 border border-[#ff7703] text-[#ff7703] rounded'
+                        >
+                            Choose file (PDF only)
+                        </button>
+                    </>
                 )}
-                <button
-                    type='submit'
-                    className='w-full md:w-fit h-[40px] px-4 flex items-center justify-center gap-3 bg-[#ff7703] text-white rounded'
-                    disabled={isUploading}
-                >
-                    <p>Save File</p>
-                    <MdFileUpload size={18} />
-                </button>
-            </div>
-        </form>
+
+                <input
+                    placeholder='Enter Certificate Subject'
+                    className='p-3 border rounded'
+                    value={issued.for}
+                    onChange={(e) =>
+                        setIssued(prev => ({
+                            ...prev,
+                            for: e.target.value
+                        }))
+                    }
+                />
+                <input
+                    placeholder='Enter Certificate Recipient Name'
+                    className='p-3 border rounded'
+                    value={issued.to}
+                    onChange={(e) =>
+                        setIssued(prev => ({
+                            ...prev,
+                            to: e.target.value
+                        }))
+                    }
+                />
+
+                <div className='w-full flex gap-3 justify-center'>
+                    {file && (
+                        <button
+                            onClick={() => setFile(null)}
+                            className='w-full md:w-fit h-[40px] px-4 flex items-center justify-center gap-3 border border-red-500 text-red-500 rounded'
+                        >
+                            <p>Remove File</p>
+                            <MdDelete size={18} />
+                        </button>
+                    )}
+                    <button
+                        type='submit'
+                        className='w-full md:w-fit h-[40px] px-4 flex items-center justify-center gap-3 bg-[#ff7703] text-white rounded'
+                        disabled={isUploading}
+                    >
+                        <p>Save File</p>
+                        <MdFileUpload size={18} />
+                    </button>
+                </div>
+            </form>
+        </div>
     )
 }

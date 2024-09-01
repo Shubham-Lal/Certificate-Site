@@ -3,7 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { BsFiletypePdf } from 'react-icons/bs'
 import { MdDelete, MdFileUpload } from 'react-icons/md'
-import useFetchCertificate from '../../hooks/fetch-certificate'
+import { useFetchCertificate } from '../../hooks/fetch-certificate'
 import PdfViewer from './pdf'
 
 export default function CertificateEdit() {
@@ -45,7 +45,7 @@ export default function CertificateEdit() {
         if (file) formData.append('certificate', file)
 
         try {
-            await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/upload`, {
+            await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/certificate`, {
                 method: 'PUT',
                 credentials: 'include',
                 body: formData
@@ -68,7 +68,7 @@ export default function CertificateEdit() {
         data._id ? (
             <div className='mx-auto w-fit'>
                 <PdfViewer file={file || data.file.url} />
-                
+
                 <form
                     onSubmit={handleEditForm}
                     className='mt-5 mx-auto max-w-[500px] flex flex-col gap-3'

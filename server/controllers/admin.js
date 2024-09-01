@@ -90,6 +90,15 @@ module.exports.autoLogin = (req, res) => {
     })
 }
 
+module.exports.fetchCertificates = async (req, res) => {
+    try {
+        const certificates = await Certificate.find().sort({ updatedAt: -1 }).exec()
+        res.status(200).json({ success: true, data: certificates })
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message })
+    }
+}
+
 module.exports.createCertificate = async (req, res) => {
     const { issued_for, issued_to } = req.body
 
@@ -174,11 +183,22 @@ module.exports.editCertificate = async (req, res) => {
     }
 }
 
-module.exports.fetchCertificates = async (req, res) => {
+module.exports.deleteCertificate = async (req, res) => {
+    const { certificateID } = req.params
+    if (!certificateID) return res.status(400).json({ success: false, message: 'Certificate ID is required' })
+
     try {
-        const certificates = await Certificate.find().sort({ updatedAt: -1 }).exec()
-        res.status(200).json({ success: true, data: certificates })
+        const certificate = await Certificate.findById(certificateID)
+        if (!certificate) {
+            return res.status(404).json({ success: false, message: 'Certificate not found' })
+        }
+
+        await cloudinary.uploader.destroy(certificate.file._id)
+
+        await Certificate.findByIdAndDelete(certificateID)
+
+        res.status(200).json({ success: true, message: 'Certificate deleted' })
     } catch (error) {
-        res.status(500).json({ success: false, message: error.message })
+        res.status(500).json({ success: false, message: 'Internal server error' })
     }
 }

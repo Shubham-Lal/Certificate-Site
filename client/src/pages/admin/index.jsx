@@ -1,25 +1,26 @@
-import { useState, useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { MdOpenInNew, MdDelete, MdEdit, MdDone } from 'react-icons/md'
+import { toast } from 'sonner'
 import { RxCross2 } from 'react-icons/rx'
+import { useFetchCertificates } from '../../hooks/fetch-certificate'
 
 export default function Admin() {
-    const [data, setData] = useState([])
+    const { isLoading, data, setData } = useFetchCertificates()
 
-    useEffect(() => {
-        const fetchCertificates = async () => {
-            await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/certificates`, {
-                method: 'GET',
-                credentials: 'include'
+    const handleDeleteCertificate = async (certificateID) => {
+        const confirmed = window.confirm('Are you sure you want to delete this certificate?')
+        if (!confirmed) return
+
+        await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/certificate/${certificateID}`, {
+            method: 'DELETE',
+            credentials: 'include'
+        })
+            .then(res => res.json())
+            .then(response => {
+                if (response.success) setData(prev => prev.filter(item => item._id !== certificateID))
+                else toast.error(response.message || 'Error deleting certificate')
             })
-                .then(res => res.json())
-                .then(response => {
-                    if (response.success) setData(response.data)
-                })
-        }
-
-        fetchCertificates()
-    }, [])
+    }
 
     return (
         <div className='relative overflow-x-hidden'>
@@ -68,7 +69,9 @@ export default function Admin() {
                                         </Link>
                                     </td>
                                     <td className={`py-2 px-3 border border-gray-300 cursor-pointer group`}>
-                                        <MdDelete size={24} className='text-gray-600 group-hover:text-red-500' />
+                                        <button onClick={() => handleDeleteCertificate(item._id)}>
+                                            <MdDelete size={24} className='text-gray-600 group-hover:text-red-500' />
+                                        </button>
                                     </td>
                                 </tr>
                             ))
@@ -78,8 +81,6 @@ export default function Admin() {
                     </tbody>
                 </table>
             </div>
-
-
         </div>
     )
 }

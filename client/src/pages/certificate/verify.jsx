@@ -1,5 +1,5 @@
 import { useParams } from 'react-router-dom'
-import useFetchCertificate from '../../hooks/fetch-certificate'
+import { useFetchCertificate } from '../../hooks/fetch-certificate'
 import PDFViewer from './pdf'
 
 export default function CertificateVerify() {

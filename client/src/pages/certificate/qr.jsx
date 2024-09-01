@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom'
-import useFetchCertificate from '../../hooks/fetch-certificate'
+import { useFetchCertificate } from '../../hooks/fetch-certificate'
 
 export default function CertificateQR() {
     const { certificateID } = useParams()

@@ -5,9 +5,10 @@ const {
     loginUser,
     logoutUser,
     autoLogin,
+    fetchCertificates,
     createCertificate,
     editCertificate,
-    fetchCertificates
+    deleteCertificate
 } = require('../controllers/admin.js')
 const authenticate = require('../middleware/auth.js')
 const upload = require('../config/multer.config.js')
@@ -16,8 +17,9 @@ router.post('/signup', signupUser)
 router.post('/login', loginUser)
 router.post('/logout', logoutUser)
 router.get('/authenticate', authenticate, autoLogin)
-router.post('/upload', authenticate, upload.single('certificate'), createCertificate)
-router.put('/upload', authenticate, upload.single('certificate'), editCertificate)
-router.get('/certificates', authenticate, fetchCertificates)
+router.get('/certificate', authenticate, fetchCertificates)
+router.post('/certificate', authenticate, upload.single('certificate'), createCertificate)
+router.put('/certificate', authenticate, upload.single('certificate'), editCertificate)
+router.delete('/certificate/:certificateID', authenticate, deleteCertificate)
 
 module.exports = router
