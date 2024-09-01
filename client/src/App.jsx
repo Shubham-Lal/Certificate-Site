@@ -9,6 +9,7 @@ import Signup from './pages/signup'
 import Certificate from './pages/certificate'
 import CertificateQR from './pages/certificate/qr'
 import CertificateVerify from './pages/certificate/verify'
+import CertificateEdit from './pages/certificate/edit'
 import Navbar from './components/navbar'
 import { useAuthStore } from './store/useAuthStore'
 
@@ -47,6 +48,7 @@ export default function App() {
             <Route path=':certificateID'>
               <Route index element={<CertificateQR />} />
               <Route path='verify' element={<CertificateVerify />} />
+              <Route path='edit' element={isAuthenticated ? <CertificateEdit /> : <Navigate to='/' />} />
             </Route>
           </Route>
         </Routes>

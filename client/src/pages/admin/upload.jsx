@@ -1,7 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
-import { ImCancelCircle } from 'react-icons/im'
 import { BsFiletypePdf } from 'react-icons/bs'
 import { MdDelete, MdFileUpload } from 'react-icons/md'
 
@@ -60,15 +59,8 @@ export default function Upload() {
         >
             {file ? (
                 <div className='flex items-center gap-5'>
-                    <div className='relative w-[50px] h-[50px] grid place-content-center border rounded'>
+                    <div className='w-[50px] h-[50px] grid place-content-center border rounded'>
                         <BsFiletypePdf size={30} />
-                        <button
-                            type='button'
-                            className='absolute -right-2 -top-2 text-red-500'
-                            onClick={() => setFile(null)}
-                        >
-                            <ImCancelCircle size={18} />
-                        </button>
                     </div>
                     <div className='flex flex-col'>
                         <p>{file.name}</p>

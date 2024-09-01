@@ -90,7 +90,7 @@ module.exports.autoLogin = (req, res) => {
     })
 }
 
-module.exports.uploadCertificate = async (req, res) => {
+module.exports.createCertificate = async (req, res) => {
     const { issued_for, issued_to } = req.body
 
     if (!req.file) return res.status(400).json({ success: false, message: 'Choose a file to upload' })
@@ -118,6 +118,57 @@ module.exports.uploadCertificate = async (req, res) => {
                 res.status(201).json({ success: true, message: 'Certificate uploaded' })
             }
         ).end(req.file.buffer)
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+module.exports.editCertificate = async (req, res) => {
+    const { certificate_id, issued_for, issued_to, is_valid } = req.body
+
+    if (!certificate_id) return res.status(400).json({ success: false, message: 'Certificate ID is required' })
+    else if (!issued_for || !issued_for.trim()) return res.status(400).json({ success: false, message: 'Certificate subject is required' })
+    else if (!issued_to || !issued_to.trim()) return res.status(400).json({ success: false, message: 'Certificate recipient is required' })
+    else if (!is_valid) return res.status(400).json({ success: false, message: 'Certificate status is required' })
+
+    try {
+        const certificate = await Certificate.findById(certificate_id)
+        if (!certificate) {
+            return res.status(400).json({ success: false, message: 'Certificate not found' })
+        }
+
+        let file = certificate.file
+        if (req.file) {
+            await new Promise((resolve, reject) => {
+                cloudinary.uploader.destroy(file._id, (error, result) => {
+                    if (error) {
+                        reject(new Error('Error deleting previous certificate'))
+                    } else {
+                        resolve(result)
+                    }
+                })
+            })
+
+            file = await new Promise((resolve, reject) => {
+                const uploadStream = cloudinary.uploader.upload_stream({ folder: 'certificates' }, (error, result) => {
+                    if (error) {
+                        reject(new Error('Error uploading new certificate'))
+                    } else {
+                        resolve({ _id: result.public_id, url: result.secure_url })
+                    }
+                })
+                uploadStream.end(req.file.buffer)
+            })
+        }
+
+        await Certificate.findByIdAndUpdate(certificate_id, {
+            file,
+            issued: { for: issued_for, to: issued_to },
+            valid: is_valid,
+            $push: { history: { adminId: req.admin._id } }
+        })
+
+        res.status(201).json({ success: true, message: 'Certificate updated' })
     } catch (error) {
         res.status(500).json({ success: false, message: error.message })
     }

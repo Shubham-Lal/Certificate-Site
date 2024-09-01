@@ -1,28 +1,10 @@
-import { useState, useEffect } from 'react'
-import { Link, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
+import useFetchCertificate from '../../hooks/fetch-certificate'
 import PDFViewer from './pdf'
 
 export default function CertificateVerify() {
     const { certificateID } = useParams()
-
-    const [data, setData] = useState({})
-
-    useEffect(() => {
-        const fetchCertificate = async () => {
-            await fetch(`${import.meta.env.VITE_SERVER_URL}/api/public/certificate/${certificateID}`, {
-                method: 'GET'
-            })
-                .then(res => res.json())
-                .then(response => {
-                    if (response.success) {
-                        setData(response.data)
-                    }
-                })
-        }
-
-        if (!certificateID || !certificateID.trim()) navigate('/')
-        fetchCertificate()
-    }, [])
+    const { isLoading, data } = useFetchCertificate(certificateID)
 
     return (
         <div className='flex flex-col items-center gap-3'>
@@ -43,11 +25,9 @@ export default function CertificateVerify() {
                             alt='Certificate Verify QR'
                         />
                     </div>
-                    {data.valid && (
-                        <a href={data.file.url} target='_blank' rel='noopener noreferrer' className='px-4 w-fit h-[40px] flex items-center justify-center bg-orange-100 border border-[#ff7703] text-[#ff7703] rounded'>
-                            Download
-                        </a>
-                    )}
+                    <a href={data.file.url} target='_blank' rel='noopener noreferrer' className='px-4 w-fit h-[40px] flex items-center justify-center bg-orange-100 border border-[#ff7703] text-[#ff7703] rounded'>
+                        Download
+                    </a>
                 </>
             ) : <p>No certificate found</p>}
         </div>

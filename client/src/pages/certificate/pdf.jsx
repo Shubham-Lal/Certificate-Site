@@ -1,5 +1,5 @@
-import { Document, Page, pdfjs } from 'react-pdf';
-import React, { useState } from 'react';
+import { useState } from 'react'
+import { Document, Page, pdfjs } from 'react-pdf'
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.mjs`
 
@@ -32,4 +32,4 @@ const PdfViewer = ({ file }) => {
     )
 }
 
-export default PdfViewer;
+export default PdfViewer

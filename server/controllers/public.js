@@ -6,7 +6,7 @@ module.exports.viewCertificate = async (req, res) => {
     if (!certificateID || !certificateID.trim()) return res.status(400).json({ success: false, message: 'Certificate ID is required' })
 
     try {
-        const certificate = await Certificate.findById(certificateID)
+        const certificate = await Certificate.findById(certificateID).select('-history')
         if (!certificate) {
             return res.status(400).json({ success: false, message: 'Certificate not found' })
         }
