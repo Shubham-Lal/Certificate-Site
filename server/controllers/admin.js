@@ -3,7 +3,9 @@ const Admin = require('../models/Admin')
 const Certificate = require('../models/Certificate')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
-const cloudinary = require('../config/cloudinary.config.js')
+const { s3Client } = require('../config/aws.config.js')
+const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3')
+const { v4: uuidv4 } = require('uuid')
 
 module.exports.signupUser = async (req, res) => {
     const { name, email, password } = req.body
@@ -107,26 +109,29 @@ module.exports.createCertificate = async (req, res) => {
     else if (!issued_to || !issued_to.trim()) return res.status(400).json({ success: false, message: 'Certificate recipient is required' })
 
     try {
-        cloudinary.uploader.upload_stream({ folder: 'certificates' },
-            async (error, result) => {
-                if (error) {
-                    return res.status(500).json({ success: false, message: error.message })
-                }
+        const fileID = `certificates/${uuidv4()}.pdf`
 
-                const newCertificate = new Certificate({
-                    file: {
-                        _id: result.public_id,
-                        url: result.secure_url
-                    },
-                    issued: { for: issued_for, to: issued_to },
-                    history: [{ adminId: req.admin._id }]
-                })
+        const uploadParams = {
+            Bucket: process.env.AWS_S3_BUCKET_NAME,
+            Key: fileID,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype,
+            ACL: 'public-read'
+        }
 
-                await newCertificate.save()
+        await s3Client.send(new PutObjectCommand(uploadParams))
 
-                res.status(201).json({ success: true, message: 'Certificate uploaded' })
-            }
-        ).end(req.file.buffer)
+        const fileURL = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileID}`
+
+        const newCertificate = new Certificate({
+            file: { _id: fileID, url: fileURL },
+            issued: { for: issued_for, to: issued_to },
+            history: [{ adminId: req.admin._id }]
+        })
+
+        await newCertificate.save()
+
+        res.status(201).json({ success: true, message: 'Certificate uploaded' })
     } catch (error) {
         res.status(500).json({ success: false, message: error.message })
     }
@@ -143,31 +148,41 @@ module.exports.editCertificate = async (req, res) => {
     try {
         const certificate = await Certificate.findById(certificate_id)
         if (!certificate) {
-            return res.status(400).json({ success: false, message: 'Certificate not found' })
+            return res.status(404).json({ success: false, message: 'Certificate not found' })
         }
 
         let file = certificate.file
-        if (req.file) {
-            await new Promise((resolve, reject) => {
-                cloudinary.uploader.destroy(file._id, (error, result) => {
-                    if (error) {
-                        reject(new Error('Error deleting previous certificate'))
-                    } else {
-                        resolve(result)
-                    }
-                })
-            })
 
-            file = await new Promise((resolve, reject) => {
-                const uploadStream = cloudinary.uploader.upload_stream({ folder: 'certificates' }, (error, result) => {
-                    if (error) {
-                        reject(new Error('Error uploading new certificate'))
-                    } else {
-                        resolve({ _id: result.public_id, url: result.secure_url })
-                    }
-                })
-                uploadStream.end(req.file.buffer)
-            })
+        if (req.file) {
+            try {
+                await s3Client.send(
+                    new DeleteObjectCommand({
+                        Bucket: process.env.AWS_S3_BUCKET_NAME,
+                        Key: file._id,
+                    })
+                )
+            } catch (err) {
+                return res.status(500).json({ success: false, message: 'Error deleting previous certificate file' })
+            }
+
+            const fileID = `certificates/${uuidv4()}.pdf`
+            
+            const uploadParams = {
+                Bucket: process.env.AWS_S3_BUCKET_NAME,
+                Key: fileID,
+                Body: req.file.buffer,
+                ContentType: req.file.mimetype,
+                ACL: 'public-read'
+            }
+
+            try {
+                await s3Client.send(new PutObjectCommand(uploadParams))
+                const fileURL = `https://${process.env.AWS_S3_BUCKET_NAME}.s3.${process.env.AWS_REGION}.amazonaws.com/${fileID}`
+
+                file = { _id: fileID, url: fileURL }
+            } catch (err) {
+                return res.status(500).json({ success: false, message: 'Error uploading new certificate file' })
+            }
         }
 
         await Certificate.findByIdAndUpdate(certificate_id, {
@@ -193,7 +208,16 @@ module.exports.deleteCertificate = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Certificate not found' })
         }
 
-        await cloudinary.uploader.destroy(certificate.file._id)
+        try {
+            await s3Client.send(
+                new DeleteObjectCommand({
+                    Bucket: process.env.AWS_S3_BUCKET_NAME,
+                    Key: certificate.file._id
+                })
+            )
+        } catch (err) {
+            return res.status(500).json({ success: false, message: 'Error deleting file from S3' })
+        }
 
         await Certificate.findByIdAndDelete(certificateID)
 
