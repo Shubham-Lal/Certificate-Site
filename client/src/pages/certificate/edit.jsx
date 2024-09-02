@@ -12,7 +12,7 @@ export default function CertificateEdit() {
     const navigate = useNavigate()
 
     const { certificateID } = useParams()
-    const { isLoading, data, setData } = useFetchCertificate(certificateID)
+    const { isLoading, data, setData } = useFetchCertificate(certificateID, 'admin')
 
     const inputRef = useRef(null)
     const [file, setFile] = useState(null)

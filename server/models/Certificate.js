@@ -27,9 +27,9 @@ const CertificateSchema = new mongoose.Schema({
     },
     history: [
         {
-            adminId: {
+            admin_id: {
                 type: mongoose.Schema.Types.ObjectId,
-                ref: 'User',
+                ref: 'Admin',
                 required: true
             },
             timestamp: {

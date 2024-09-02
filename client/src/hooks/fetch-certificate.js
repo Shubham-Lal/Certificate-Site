@@ -1,19 +1,28 @@
 import { useState, useEffect } from 'react'
 
-function useFetchCertificate(certificateID) {
+function useFetchCertificate(certificateID, type = 'public') {
     const [isLoading, setLoading] = useState(true)
     const [data, setData] = useState({})
 
     useEffect(() => {
         const fetchCertificate = async () => {
-            await fetch(`${import.meta.env.VITE_SERVER_URL}/api/public/certificate/${certificateID}`, {
-                method: 'GET'
-            })
-                .then(res => res.json())
-                .then(response => {
-                    if (response.success) setData(response.data)
-                })
-                .finally(() => setLoading(false))
+            const url = `${import.meta.env.VITE_SERVER_URL}/api/${type}/certificate/${certificateID}`
+
+            const fetchOptions = {
+                method: 'GET',
+                ...(type === 'admin' && { credentials: 'include' })
+            }
+
+            try {
+                const res = await fetch(url, fetchOptions)
+                const response = await res.json()
+
+                if (response.success) setData(response.data)
+            } catch (error) {
+                console.error('Error fetching certificate:', error)
+            } finally {
+                setLoading(false)
+            }
         }
 
         fetchCertificate()

@@ -92,12 +92,30 @@ module.exports.autoLogin = (req, res) => {
     })
 }
 
-module.exports.fetchCertificates = async (req, res) => {
+module.exports.fetchAllCertificate = async (req, res) => {
     try {
         const certificates = await Certificate.find().sort({ updatedAt: -1 }).exec()
         res.status(200).json({ success: true, data: certificates })
     } catch (error) {
         res.status(500).json({ success: false, message: error.message })
+    }
+}
+
+module.exports.fetchSingleCertificate = async (req, res) => {
+    const { certificateID } = req.params
+
+    if (!certificateID || !certificateID.trim()) return res.status(400).json({ success: false, message: 'Certificate ID is required' })
+
+    try {
+        const certificate = await Certificate.findById(certificateID).populate('history.admin_id', 'name email')
+        if (!certificate) {
+            return res.status(400).json({ success: false, message: 'Certificate not found' })
+        }
+
+        res.status(201).json({ success: true, data: certificate })
+    } catch (err) {
+        console.log(err)
+        res.status(500).json({ success: false, message: 'Internal server error' })
     }
 }
 
@@ -126,7 +144,7 @@ module.exports.createCertificate = async (req, res) => {
         const newCertificate = new Certificate({
             file: { _id: fileID, url: fileURL },
             issued: { for: issued_for, to: issued_to },
-            history: [{ adminId: req.admin._id }]
+            history: [{ admin_id: req.admin._id }]
         })
 
         await newCertificate.save()
@@ -166,7 +184,7 @@ module.exports.editCertificate = async (req, res) => {
             }
 
             const fileID = `certificates/${uuidv4()}.pdf`
-            
+
             const uploadParams = {
                 Bucket: process.env.AWS_S3_BUCKET_NAME,
                 Key: fileID,
@@ -189,7 +207,7 @@ module.exports.editCertificate = async (req, res) => {
             file,
             issued: { for: issued_for, to: issued_to },
             valid: is_valid,
-            $push: { history: { adminId: req.admin._id } }
+            $push: { history: { admin_id: req.admin._id } }
         })
 
         res.status(201).json({ success: true, message: 'Certificate updated' })
