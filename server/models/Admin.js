@@ -14,7 +14,15 @@ const AdminSchema = new mongoose.Schema({
     password: {
         type: String,
         required: true
-    }
+    },
+    auth: [
+        {
+            token: {
+                type: String,
+                required: true
+            }
+        }
+    ]
 })
 
 AdminSchema.pre('save', async function (next) {

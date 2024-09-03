@@ -74,8 +74,10 @@ export default function CertificateEdit() {
     return (
         isLoading ? <Loading size={30} color='#ff7703' className='mx-auto' /> : (
             data._id ? (
-                <div className='mx-auto w-fit'>
-                    <PDFViewer file={file || data.file.url} />
+                <div className='overflow-x-hidden'>
+                    <div className='mx-auto w-fit'>
+                        <PDFViewer file={file || data.file.url} />
+                    </div>
 
                     <form
                         onSubmit={handleEditForm}
@@ -164,6 +166,35 @@ export default function CertificateEdit() {
                             </button>
                         </div>
                     </form>
+
+                    <h1 className='mx-auto mt-5 pt-5 xl:w-[calc(1280px-0.75rem-0.75rem)] text-2xl sm:text-3xl border-t border-dashed'>Changes History</h1>
+
+                    <div className='mx-auto xl:w-fit overflow-x-auto'>
+                        <table className='w-[calc(1280px-0.75rem-0.75rem)] mt-3 border-collapse border border-gray-300'>
+                            <thead className='bg-gray-100'>
+                                <tr>
+                                    <th className='w-[20%] border border-gray-300'>Name</th>
+                                    <th className='w-[20%] border border-gray-300'>Email</th>
+                                    <th className='w-[40%] border border-gray-300'>Changes</th>
+                                    <th className='w-[20%] border border-gray-300'>Timestamp</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {data.history.length ? (
+                                    data.history.map(item => (
+                                        <tr key={item._id}>
+                                            <td className='py-2 px-3 border border-gray-300 text-center'>{item.admin_id.name}</td>
+                                            <td className='py-2 px-3 border border-gray-300 text-center'>{item.admin_id.email}</td>
+                                            <td className='py-2 px-3 border border-gray-300 text-center'>{item.changes}</td>
+                                            <td className='py-2 px-3 border border-gray-300 text-center'>{new Date(item.timestamp).toLocaleString("en-IN", { timeZone: "Asia/Kolkata" })}</td>
+                                        </tr>
+                                    ))
+                                ) : (
+                                    <tr><td className='py-2 px-3'><p>No changes yet</p></td></tr>
+                                )}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             ) : <p>No certificate found</p>
         )

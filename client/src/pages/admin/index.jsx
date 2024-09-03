@@ -33,7 +33,7 @@ export default function Admin() {
     }
 
     return (
-        <div className='relative overflow-x-hidden'>
+        <div className='overflow-x-hidden'>
             <div className='mx-auto xl:w-[calc(1280px-0.75rem-0.75rem)] flex items-center justify-between'>
                 <h1 className='text-2xl sm:text-3xl'>Certificates</h1>
                 <Link to='upload' className='px-4 w-fit h-[40px] flex items-center justify-center bg-orange-100 border border-[#ff7703] text-[#ff7703] rounded'>
@@ -58,7 +58,7 @@ export default function Admin() {
                         {isLoading ? (
                             <tr>
                                 <td className='py-2 px-3'>
-                                    <Loading size={30} color='#ff7703' />
+                                    <Loading size={24} color='#ff7703' />
                                 </td>
                             </tr>
                         ) : (

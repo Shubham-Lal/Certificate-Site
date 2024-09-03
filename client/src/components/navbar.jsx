@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { useLocation, Link } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useAuthStore } from '../store/useAuthStore'
@@ -7,13 +8,14 @@ const Navbar = () => {
 
     const { isAuthenticated, setIsAuthenticated } = useAuthStore()
 
-    const handleLogout = async (e) => {
+    const [logoutTab, setLogoutTab] = useState(false)
+
+    const handleLogoutDevice = async (type = 'single') => {
         await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/logout`, {
             method: 'POST',
             credentials: 'include',
-            headers: {
-                'Content-Type': 'application/json'
-            }
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ device: type })
         })
             .then(res => res.json())
             .then(response => {
@@ -24,6 +26,7 @@ const Navbar = () => {
                 else toast.error(response.message)
             })
             .catch(() => toast.error('Something went wrong'))
+            .finally(() => setLogoutTab(false))
     }
 
     return (
@@ -45,12 +48,30 @@ const Navbar = () => {
                 {isAuthenticated === 'authenticated' ? (
                     <>
                         <Link to='/admin' className={`hover:text-[#ff7703] ${location.pathname === '/admin' ? 'text-[#ff7703]' : ''}`}>Admin</Link>
-                        <button
-                            className='hover:underline'
-                            onClick={handleLogout}
-                        >
-                            Logout
-                        </button>
+                        <div className='relative'>
+                            <button
+                                className={`hover:text-[#ff7703] ${logoutTab ? 'text-[#ff7703]' : ''}`}
+                                onClick={() => setLogoutTab(!logoutTab)}
+                            >
+                                Logout
+                            </button>
+                            {logoutTab && (
+                                <div className='absolute top-11 right-0 w-[250px] p-3 flex flex-col gap-3 bg-gray-100 text-center border-b border-x rounded-b-md'>
+                                    <button
+                                        className='hover:underline'
+                                        onClick={() => handleLogoutDevice()}
+                                    >
+                                        Logout from this device
+                                    </button>
+                                    <button
+                                        className='hover:underline'
+                                        onClick={() => handleLogoutDevice('all')}
+                                    >
+                                        Logout from all devices
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     </>
                 ) : (
                     <>

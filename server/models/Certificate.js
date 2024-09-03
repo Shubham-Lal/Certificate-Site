@@ -32,6 +32,10 @@ const CertificateSchema = new mongoose.Schema({
                 ref: 'Admin',
                 required: true
             },
+            changes: {
+                type: String,
+                required: true
+            },
             timestamp: {
                 type: Date,
                 default: Date.now

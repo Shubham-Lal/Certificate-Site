@@ -51,6 +51,8 @@ module.exports.loginUser = async (req, res) => {
         }
 
         const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '1h' })
+        admin.auth.push({ token })
+        await admin.save()
 
         res.cookie('token', token, {
             httpOnly: true,
@@ -71,6 +73,28 @@ module.exports.loginUser = async (req, res) => {
 
 module.exports.logoutUser = async (req, res) => {
     try {
+        const { device } = req.body
+        const token = req.cookies.token
+        if (!token) return res.status(400).json({ success: false, message: 'No token provided' })
+
+        if (device === 'single') {
+            const admin = await Admin.findOneAndUpdate(
+                { 'auth.token': token },
+                { $pull: { auth: { token } } },
+                { new: true }
+            )
+            if (!admin) return res.status(400).json({ success: false, message: 'Invalid token' })
+        }
+        else if (device === 'all') {
+            const admin = await Admin.findOneAndUpdate(
+                { 'auth.token': token },
+                { $set: { auth: [] } },
+                { new: true }
+            )
+            if (!admin) return res.status(400).json({ success: false, message: 'Invalid token' })
+        }
+        else return res.status(400).json({ success: false, message: 'Invalid logout type' })
+
         res.cookie('token', '', {
             httpOnly: true,
             secure: process.env.NODE_ENV === 'production',
@@ -112,6 +136,8 @@ module.exports.fetchSingleCertificate = async (req, res) => {
             return res.status(400).json({ success: false, message: 'Certificate not found' })
         }
 
+        certificate.history.sort((a, b) => b.timestamp - a.timestamp)
+
         res.status(201).json({ success: true, data: certificate })
     } catch (err) {
         console.log(err)
@@ -144,7 +170,7 @@ module.exports.createCertificate = async (req, res) => {
         const newCertificate = new Certificate({
             file: { _id: fileID, url: fileURL },
             issued: { for: issued_for, to: issued_to },
-            history: [{ admin_id: req.admin._id }]
+            history: [{ admin_id: req.admin._id, changes: 'Created certificate' }]
         })
 
         await newCertificate.save()
@@ -161,7 +187,7 @@ module.exports.editCertificate = async (req, res) => {
     if (!certificate_id) return res.status(400).json({ success: false, message: 'Certificate ID is required' })
     else if (!issued_for || !issued_for.trim()) return res.status(400).json({ success: false, message: 'Certificate subject is required' })
     else if (!issued_to || !issued_to.trim()) return res.status(400).json({ success: false, message: 'Certificate recipient is required' })
-    else if (!is_valid) return res.status(400).json({ success: false, message: 'Certificate status is required' })
+    else if (is_valid === undefined || is_valid === null) return res.status(400).json({ success: false, message: 'Certificate status is required' })
 
     try {
         const certificate = await Certificate.findById(certificate_id)
@@ -176,7 +202,7 @@ module.exports.editCertificate = async (req, res) => {
                 await s3Client.send(
                     new DeleteObjectCommand({
                         Bucket: process.env.AWS_S3_BUCKET_NAME,
-                        Key: file._id,
+                        Key: file._id
                     })
                 )
             } catch (err) {
@@ -203,11 +229,22 @@ module.exports.editCertificate = async (req, res) => {
             }
         }
 
+        let changes = []
+        if (file.url !== certificate.file.url) changes.push('file')
+        if (issued_for !== certificate.issued.for) changes.push('subject')
+        if (issued_to !== certificate.issued.to) changes.push('recipient name')
+        if (is_valid !== certificate.valid) changes.push('status')
+
         await Certificate.findByIdAndUpdate(certificate_id, {
             file,
             issued: { for: issued_for, to: issued_to },
             valid: is_valid,
-            $push: { history: { admin_id: req.admin._id } }
+            $push: {
+                history: {
+                    admin_id: req.admin._id,
+                    changes: `Updated Certificate ${changes.join(', ')}`
+                }
+            }
         })
 
         res.status(201).json({ success: true, message: 'Certificate updated' })
