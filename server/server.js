@@ -36,13 +36,14 @@ const options = {
     apis: ['./routes/*.js']
 }
 const specs = swaggerJsdoc(options)
+const CSS_URL = 'https://cdnjs.cloudflare.com/ajax/libs/swagger-ui/4.1.0/swagger-ui.min.css'
 app.use(
     '/',
     swaggerUi.serve,
     swaggerUi.setup(specs, {
         customSiteTitle: 'Certificate Site API',
         customfavIcon: 'favicon.ico',
-        customCssUrl: ['swagger.css']
+        customCssUrl: CSS_URL
     })
 )
 
