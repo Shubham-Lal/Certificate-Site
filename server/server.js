@@ -33,7 +33,7 @@ const options = {
             version: '1.0.0'
         }
     },
-    apis: ['./routes/*.js']
+    apis: [`${__dirname}/routes/*.js`]
 }
 const specs = swaggerJsdoc(options)
 app.use(
