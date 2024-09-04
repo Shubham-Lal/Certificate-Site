@@ -3,6 +3,7 @@ const Admin = require('../models/Admin')
 const Certificate = require('../models/Certificate')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
+const cache = require('../config/cache.config.js')
 const { s3Client } = require('../config/aws.config.js')
 const { PutObjectCommand, DeleteObjectCommand } = require('@aws-sdk/client-s3')
 const { v4: uuidv4 } = require('uuid')
@@ -51,8 +52,7 @@ module.exports.loginUser = async (req, res) => {
         }
 
         const token = jwt.sign({ id: admin._id }, process.env.JWT_SECRET, { expiresIn: '1h' })
-        admin.auth.push({ token })
-        await admin.save()
+        cache.set(token, admin._id)
 
         res.cookie('token', token, {
             httpOnly: true,
@@ -77,23 +77,14 @@ module.exports.logoutUser = async (req, res) => {
         const token = req.cookies.token
         if (!token) return res.status(400).json({ success: false, message: 'No token provided' })
 
-        if (device === 'single') {
-            const admin = await Admin.findOneAndUpdate(
-                { 'auth.token': token },
-                { $pull: { auth: { token } } },
-                { new: true }
-            )
-            if (!admin) return res.status(400).json({ success: false, message: 'Invalid token' })
-        }
+        if (device === 'single') cache.del(token)
         else if (device === 'all') {
-            const admin = await Admin.findOneAndUpdate(
-                { 'auth.token': token },
-                { $set: { auth: [] } },
-                { new: true }
-            )
-            if (!admin) return res.status(400).json({ success: false, message: 'Invalid token' })
+            const adminId = cache.get(token)
+            cache.keys().forEach(key => {
+                const cachedAdminId = cache.get(key)
+                if (cachedAdminId.toString() === adminId.toString()) cache.del(key)
+            })
         }
-        else return res.status(400).json({ success: false, message: 'Invalid logout type' })
 
         res.cookie('token', '', {
             httpOnly: true,
@@ -233,16 +224,18 @@ module.exports.editCertificate = async (req, res) => {
         if (file.url !== certificate.file.url) changes.push('file')
         if (issued_for !== certificate.issued.for) changes.push('subject')
         if (issued_to !== certificate.issued.to) changes.push('recipient name')
-        if (is_valid !== certificate.valid) changes.push('status')
+        if (is_valid !== certificate.validtoString()) changes.push('status')
 
         await Certificate.findByIdAndUpdate(certificate_id, {
             file,
             issued: { for: issued_for, to: issued_to },
             valid: is_valid,
-            $push: {
-                history: {
-                    admin_id: req.admin._id,
-                    changes: `Updated Certificate ${changes.join(', ')}`
+            ...changes.length && {
+                $push: {
+                    history: {
+                        admin_id: req.admin._id,
+                        changes: `Updated Certificate ${changes.join(', ')}`
+                    }
                 }
             }
         })
