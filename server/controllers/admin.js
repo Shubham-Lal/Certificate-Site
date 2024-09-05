@@ -224,7 +224,7 @@ module.exports.editCertificate = async (req, res) => {
         if (file.url !== certificate.file.url) changes.push('file')
         if (issued_for !== certificate.issued.for) changes.push('subject')
         if (issued_to !== certificate.issued.to) changes.push('recipient name')
-        if (is_valid !== certificate.validtoString()) changes.push('status')
+        if (is_valid !== certificate.toString()) changes.push('status')
 
         await Certificate.findByIdAndUpdate(certificate_id, {
             file,

@@ -11,7 +11,8 @@ const {
     editCertificate,
     deleteCertificate
 } = require('../controllers/admin.js')
-const authenticate = require('../middleware/auth.js')
+const verifyCookie = require('../middleware/verify-cookie.js')
+const rateLimiter = require('../middleware/rate-limit.js')
 const upload = require('../config/multer.config.js')
 
 function multerErrorHandler(err, req, res, next) {
@@ -271,7 +272,7 @@ router.post('/logout', logoutUser)
  *                   type: string
  *                   example: 'Internal server error'
  */
-router.get('/authenticate', authenticate, autoLogin)
+router.get('/authenticate', verifyCookie, autoLogin)
 
 /**
  * @swagger
@@ -314,7 +315,7 @@ router.get('/authenticate', authenticate, autoLogin)
  *                   type: string
  *                   example: 'Internal server error'
  */
-router.get('/certificate', authenticate, fetchAllCertificate)
+router.get('/certificate', verifyCookie, fetchAllCertificate)
 
 /**
  * @swagger
@@ -370,7 +371,7 @@ router.get('/certificate', authenticate, fetchAllCertificate)
  *                   type: string
  *                   example: 'Internal server error'
  */
-router.get('/certificate/:certificateID', authenticate, fetchSingleCertificate)
+router.get('/certificate/:certificateID', verifyCookie, fetchSingleCertificate)
 
 /**
  * @swagger
@@ -447,7 +448,7 @@ router.get('/certificate/:certificateID', authenticate, fetchSingleCertificate)
  *                   type: string
  *                   example: 'Internal server error'
  */
-router.post('/certificate', authenticate, upload.single('certificate'), multerErrorHandler, createCertificate)
+router.post('/certificate', verifyCookie, rateLimiter('create'), upload.single('certificate'), multerErrorHandler, createCertificate)
 
 /**
  * @swagger
@@ -532,7 +533,7 @@ router.post('/certificate', authenticate, upload.single('certificate'), multerEr
  *                   type: string
  *                   example: 'Internal server error'
  */
-router.put('/certificate', authenticate, upload.single('certificate'), multerErrorHandler, editCertificate)
+router.put('/certificate', verifyCookie, rateLimiter('update'), upload.single('certificate'), multerErrorHandler, editCertificate)
 
 /**
  * @swagger
@@ -588,6 +589,6 @@ router.put('/certificate', authenticate, upload.single('certificate'), multerErr
  *                   type: string
  *                   example: 'Internal server error'
  */
-router.delete('/certificate/:certificateID', authenticate, deleteCertificate)
+router.delete('/certificate/:certificateID', verifyCookie, deleteCertificate)
 
 module.exports = router

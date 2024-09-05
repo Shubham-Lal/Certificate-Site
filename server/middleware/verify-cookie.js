@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken')
 const Admin = require('../models/Admin')
 const cache = require('../config/cache.config')
 
-const authenticate = async (req, res, next) => {
+const verifyCookie = async (req, res, next) => {
     try {
         const token = req.cookies.token
         if (!token) return res.status(401).json({ success: false, message: 'No token provided' })
@@ -32,4 +32,4 @@ const authenticate = async (req, res, next) => {
     }
 }
 
-module.exports = authenticate
+module.exports = verifyCookie
