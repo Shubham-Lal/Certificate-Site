@@ -1,10 +1,12 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
+import Loading from '../components/loading'
 
 export default function Signup() {
     const navigate = useNavigate()
 
+    const [isLoading, setLoading] = useState(false)
     const [credentials, setCredentials] = useState({ name: '', email: '', password: '' })
 
     const handleSignupForm = async (e) => {
@@ -12,6 +14,8 @@ export default function Signup() {
 
         if (!credentials.email.trim()) return toast.error('Enter email')
         else if (!credentials.password.trim()) return toast.error('Enter password')
+
+        setLoading(true)
 
         await fetch(`${import.meta.env.VITE_SERVER_URL}/api/admin/signup`, {
             method: 'POST',
@@ -28,6 +32,7 @@ export default function Signup() {
                 else toast.error(response.message)
             })
             .catch(() => toast.error('Something went wrong'))
+            .finally(() => setLoading(false))
     }
 
     return (
@@ -73,9 +78,10 @@ export default function Signup() {
             />
             <button
                 type='submit'
-                className='h-[50px] bg-[#ff7703] text-white rounded'
+                className={`h-[50px] rounded ${isLoading ? 'bg-transparent text-[#ff7703] cursor-not-allowed' : 'bg-[#ff7703] text-white'}`}
+                disabled={isLoading}
             >
-                Signup
+                {isLoading ? <Loading size={25} className='mx-auto' /> : 'Signup'}
             </button>
         </form>
     )
