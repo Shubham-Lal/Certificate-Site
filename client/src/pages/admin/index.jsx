@@ -76,9 +76,9 @@ export default function Admin() {
                                             )}
                                         </td>
                                         <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
-                                            <a href={`${import.meta.env.VITE_CLIENT_URL}/certificate/${item._id}`} target='_blank' rel='noopener noreferrer'>
+                                            <Link to={`/certificate/${item._id}`}>
                                                 <MdOpenInNew size={24} className='text-gray-600 group-hover:text-black' />
-                                            </a>
+                                            </Link>
                                         </td>
                                         <td className='py-2 px-3 border border-gray-300 cursor-pointer group'>
                                             <Link to={`/certificate/${item._id}/edit`}>
